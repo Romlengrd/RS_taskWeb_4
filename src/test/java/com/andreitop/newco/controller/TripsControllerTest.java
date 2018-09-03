@@ -15,8 +15,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,6 +34,9 @@ public class TripsControllerTest {
     @MockBean
     private TripService tripService;
 
+    private TripDto tripDto = new TripDto();
+
+
     @Test
     public void whenPostTrip_thenCreateTrip() throws Exception {
         mockMvc.perform(post(API_URL)
@@ -46,7 +48,6 @@ public class TripsControllerTest {
     @Test
     public void givenTrips_whenGetTrips_thenReturnJsonArray() throws Exception {
 
-        TripDto tripDto = new TripDto();
         tripDto.setId(1L);
         tripDto.setOrigin("MOW");
         tripDto.setDestination("LED");
@@ -64,4 +65,54 @@ public class TripsControllerTest {
                 .andExpect(jsonPath("$[0].destination", is("LED")))
                 .andExpect(jsonPath("$[0].price", is(4232)));
     }
+
+    @Test
+    public void testFindById() throws Exception {
+        tripDto.setOrigin("NYC");
+        tripDto.setDestination("SPB");
+        tripDto.setPrice(80000);
+
+        long id = tripService.save(tripDto);
+
+        tripDto.setId(id);
+
+        given(tripService.findById(id)).willReturn(tripDto);
+
+        mockMvc.perform(get(API_URL + "/" + id))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(CONTENT_TYPE))
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.origin", is("NYC")))
+                .andExpect(jsonPath("$.destination", is("SPB")))
+                .andExpect(jsonPath("$.price", is(80000)));
+
+    }
+
+    @Test
+    public void testUpdate() throws Exception {
+        mockMvc.perform(put(API_URL)
+                .contentType(CONTENT_TYPE)
+                .content(TRIP_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        tripDto.setOrigin("NYC");
+        tripDto.setDestination("SPB");
+        tripDto.setPrice(80000);
+
+        long id = tripService.save(tripDto);
+
+        tripDto.setId(id);
+
+        mockMvc.perform(delete(API_URL + "/" + id)
+                .contentType(CONTENT_TYPE)
+                .content(TRIP_JSON))
+                .andExpect(status().isNoContent());
+
+    }
+
+
+
 }

@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(ApiConstant.API_V_1 + "/trips")
-public class TripsController {
+public class TripsController implements TripsControllerContract<TripDto> {
 
     private final TripService tripService;
 

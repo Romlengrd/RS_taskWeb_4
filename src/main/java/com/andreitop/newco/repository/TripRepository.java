@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class TripRepository  {
+public class TripRepository  implements TripRepositoryContract<TripDto>{
 
     private final List<TripDto> trips = new ArrayList<>();
 
@@ -21,9 +21,11 @@ public class TripRepository  {
                 .orElse(null);
     }
 
-    public void save(final TripDto trip) {
-        trip.setId((long) (trips.size() + 1));
+    public long save(final TripDto trip) {
+        long id = (long) (trips.size()+1);
+        trip.setId(id);
         trips.add(trip);
+        return id;
     }
 
     public void delete(final Long id) {

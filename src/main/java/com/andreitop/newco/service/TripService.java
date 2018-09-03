@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TripService {
+public class TripService implements TripServiceContract<TripDto>{
 
     private final TripRepository tripRepository;
 
@@ -24,8 +24,8 @@ public class TripService {
         return tripRepository.findById(id);
     }
 
-    public void save(TripDto trip) {
-        tripRepository.save(trip);
+    public long save(TripDto trip) {
+        return tripRepository.save(trip);
     }
 
     public void delete(Long id) {
